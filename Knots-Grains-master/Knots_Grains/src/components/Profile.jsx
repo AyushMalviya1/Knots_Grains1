@@ -89,10 +89,20 @@ export default function CarpenterProfile() {
     }
   };
 
-  const handleRemoveSkill = (skillToRemove) => {
-    setSkills(skills.filter((s) => s !== skillToRemove));
-    // TODO: Update backend
-  };
+ const handleRemoveSkill = async (skillToRemove) => {
+  try {
+    await authService.removeSkill(email, skillToRemove);
+
+    const updatedSkills = skills.filter((s) => s !== skillToRemove);
+
+    setSkills(updatedSkills);       // update UI
+    dispatch(setSkill(updatedSkills)); // update redux
+
+  } catch (error) {
+    console.log("Error removing skill:", error);
+  }
+};
+
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];

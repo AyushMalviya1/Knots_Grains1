@@ -1,10 +1,46 @@
-import React from "react";
+import React,{useState} from "react";
+import authService from "../../AuthService/AuthService";
 import hero from "../../assets/hero.webp";
 import { useModalNavigation} from "../ModalForm/index";
 function Main() {
 
+  const [name, setName] = useState();
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState();
+    const [loading, setLoading] = useState(false); // ✅ Loading state
 
   const { openSignup } = useModalNavigation();  
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+ setLoading(true); 
+  try {
+    const response = await fetch(
+      `http://localhost:2003/contactus?name=${name}&email=${email}&message=${message}`,
+      {
+        method: "POST",
+      }
+    );
+
+    const data = await response.text();
+
+    if (response.ok) {
+      alert("Your form was submitted ✔");
+      setName("");
+      setEmail("");
+      setMessage("");
+    } else {
+      alert("Something went wrong. Please try again later ❌");
+    }
+
+  } catch (error) {
+    alert("Server error. Please try again later ❌");
+  } finally {
+      setLoading(false); // Stop loading
+    }
+};
+
+
   return (
     <>
       {/* ---------- Hero Section ---------- */}
@@ -57,27 +93,36 @@ function Main() {
           Have questions or need support? Reach out to us anytime — we’re here
           to help you grow your craft.
         </p>
-        <form className="max-w-md mx-auto space-y-4">
+        <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
           <input
             type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder="Your Name"
             className="w-full p-3 border rounded-md focus:ring-2 focus:ring-yellow-400 outline-none"
           />
           <input
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="Your Email"
             className="w-full p-3 border rounded-md focus:ring-2 focus:ring-yellow-400 outline-none"
           />
           <textarea
             rows="4"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
             placeholder="Your Message"
             className="w-full p-3 border rounded-md focus:ring-2 focus:ring-yellow-400 outline-none"
           ></textarea>
           <button
             type="submit"
-            className="w-full bg-yellow-500 text-white py-3 rounded-md hover:bg-yellow-600 transition"
+            disabled={loading} // prevent multiple clicks
+            className={`w-full py-3 rounded-md text-white ${
+              loading ? "bg-gray-400 cursor-not-allowed" : "bg-yellow-500 hover:bg-yellow-600"
+            } transition`}
           >
-            Send Message
+            {loading ? "Sending..." : "Send Message"}
           </button>
         </form>
       </section>

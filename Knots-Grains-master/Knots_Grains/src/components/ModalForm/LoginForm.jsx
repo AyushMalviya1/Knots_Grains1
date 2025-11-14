@@ -34,8 +34,8 @@ function LoginForm() {
       } else {
         alert(data.error || "Invalid credentials!");
       }
-    } catch (error) {
-      setError("something went wrong. Please try again later.");
+    } catch (data) {
+      setError(data.message);
     }
   };
 

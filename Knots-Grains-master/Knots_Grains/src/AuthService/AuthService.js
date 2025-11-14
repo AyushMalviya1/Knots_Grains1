@@ -30,14 +30,13 @@ class AuthService {
       const data = await response.json();
 
       if (!response.ok) {
-        // Backend exception
         throw new Error(data.error || "Login failed");
       }
 
       return data;
-    } catch (error) {
+    } catch (response) {
       console.error("Something went wrong. Please try again later.");
-      throw error;
+      throw response;
     }
   };
 
@@ -149,26 +148,61 @@ class AuthService {
   };
 
   uploadSkill = async (email, skill) => {
-    try{
-    const response = await fetch(
-      `http://localhost:2003/setSkills?email=${encodeURIComponent(
-        email
-      )}&skill=${encodeURIComponent(skill)}`,
-       {
+    try {
+      const response = await fetch(
+        `http://localhost:2003/setSkills?email=${encodeURIComponent(
+          email
+        )}&skill=${encodeURIComponent(skill)}`,
+        {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
         }
-    );
-    if(!response.ok){
-      console.log("error in uploading skills ")
+      );
+      if (!response.ok) {
+        console.log("error in uploading skills ");
+      }
+      return this.getSkills(email);
+    } catch (error) {
+      console.log(error);
     }
-    return this.getSkills(email);
-  }catch(error){
-    console.log(error);
-  }   
   };
+
+  async removeSkill(email, skill) {
+    const response = await fetch(
+      `http://localhost:2003/removeSkill?email=${email}&skill=${skill}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to remove skill");
+    }
+
+    return response.text();
+  }
+
+  async contactUs(name, email, message) {
+    try{
+    const response = await fetch(
+      `http://localhost:2003/contactus?name=${name}&email=${email}&message=${message}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    if(!response.ok){
+      console.log(response.message);
+    }
+    return response.json();
+  }
+  catch(response){
+    throw response;
+  }
+}
 }
 
 const authService = new AuthService();
